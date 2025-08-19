@@ -1,4 +1,9 @@
 # Sistema de Pagos Orientado a Eventos (PoC en Go)
+
+----------------------------------------------------
+<b>Para más detalles, consultar el documento de diseño de arquitectura completo. [Diseño completo](https://docs.google.com/document/d/1Q58RjFbj48WOTY-b6ZPQ5h_nuTJ1xJpIvmEAFc2aY98/edit?usp=sharing)</b>
+----------------------------------------------------
+
 Este repositorio contiene una implementación de prueba de concepto (Proof of Concept) para un sistema de procesamiento de pagos, basado en una arquitectura de microservicios orientada a eventos y diseñada para ejecutarse en un entorno serverless (AWS Lambda).
 
 El objetivo de este proyecto es demostrar la aplicación de principios de diseño de software robustos como la Arquitectura Hexagonal, el Patrón Saga para transacciones distribuidas y el manejo integral de errores en un sistema asíncrono.
@@ -6,10 +11,10 @@ El objetivo de este proyecto es demostrar la aplicación de principios de diseñ
 ## 1. Arquitectura del Sistema
 La arquitectura general se basa en un conjunto de microservicios desacoplados que se comunican a través de un bus de eventos central. Cada servicio es dueño de su propio dominio y base de datos, garantizando una alta cohesión y bajo acoplamiento.
 
-Para más detalles, consultar el documento de diseño de arquitectura completo. [Diseño completo](https://docs.google.com/document/d/1Q58RjFbj48WOTY-b6ZPQ5h_nuTJ1xJpIvmEAFc2aY98/edit?usp=sharing)
+<b>Para más detalles, consultar el documento de diseño de arquitectura completo. [Diseño completo](https://docs.google.com/document/d/1Q58RjFbj48WOTY-b6ZPQ5h_nuTJ1xJpIvmEAFc2aY98/edit?usp=sharing)</b>
 
 ### Diagrama de Despliegue en AWS
-![Diagrama de despliegue](image-1.png)
+![Diagrama de despliegue](img/image-1.png)
 
 ### Flujos de Pago
 ![Diagrama de secuencia - Happy path](img/image-2.png)
@@ -30,27 +35,7 @@ Patrón Saga (Coreografiada): Se utiliza para mantener la consistencia de los da
 ## 3. Estructura del Proyecto (Monorepo)
 El proyecto está organizado como un monorepo, donde cada servicio principal reside en su propio directorio.
 
-/
-├── cmd/
-│   ├── payment/            # Entrypoint para la Lambda de Pagos
-│   │   └── main.go
-│   └── wallet/             # Entrypoint para la Lambda de Billetera
-│       └── main.go
-├── internal/
-│   ├── config/             # Carga de configuración
-│   ├── domain/             # Lógica de negocio pura, entidades y puertos
-│   │   ├── payment/
-│   │   └── wallet/
-│   ├── platform/           # Implementación de adaptadores (infraestructura)
-│   │   ├── bus/            # Adaptador para el bus de eventos (mock)
-│   │   └── repository/     # Adaptador para la base de datos (mock)
-│   └── services/           # Lógica de aplicación que conecta dominio e infraestructura
-│       ├── payment/
-│       └── wallet/
-├── pkg/                    # Código compartido (ej. estructuras de eventos)
-│   └── events/
-│       └── events.go
-└── go.mod
+TODO
 
 ## 4. Contratos de Eventos
 Los eventos son el contrato principal entre los servicios. Se definen con la siguiente estructura:
