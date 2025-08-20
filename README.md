@@ -9,7 +9,7 @@ La arquitectura general se basa en un conjunto de microservicios desacoplados qu
 Para más detalles, consultar el documento de diseño de arquitectura completo. [Diseño completo](https://docs.google.com/document/d/1Q58RjFbj48WOTY-b6ZPQ5h_nuTJ1xJpIvmEAFc2aY98/edit?usp=sharing)
 
 ### Diagrama de Despliegue en AWS
-![Diagrama de despliegue](image-1.png)
+![Diagrama de despliegue](img/image-1.png)
 
 ### Flujos de Pago
 ![Diagrama de secuencia - Happy path](img/image-2.png)
