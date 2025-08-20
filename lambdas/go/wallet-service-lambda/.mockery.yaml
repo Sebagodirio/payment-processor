@@ -1,0 +1,31 @@
+all: false
+force-file-write: true
+formatter: goimports
+log-level: debug
+pkgname: mocks
+recursive: false
+require-template-schema-exists: true
+template: testify
+packages:
+  github.com/payment-processor/internal/debit/infra/handler:
+    config:
+    interfaces:
+      UseCase:
+        config:
+          dir: "./internal/debit/infra/handler/mocks"
+          structname: "{{.Mock}}{{.InterfaceName}}"
+          filename: "mock_{{.InterfaceName}}.go"
+
+  github.com/payment-processor/internal/debit/application/ports:
+    config:
+    interfaces:
+      EventBusProcessor:
+        config:
+          dir: "./internal/debit/application/ports/mocks"
+          structname: "{{.Mock}}{{.InterfaceName}}"
+          filename: "mock_{{.InterfaceName}}.go"
+      WalletRepository:
+        config:
+          dir: "./internal/debit/application/ports/mocks"
+          structname: "{{.Mock}}{{.InterfaceName}}"
+          filename: "mock_{{.InterfaceName}}.go"

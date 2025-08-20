@@ -38,7 +38,7 @@ func (h *UseCaseHandler) Handle(ctx context.Context, req Request) error {
 		attribute.Float64("debit.amount", float64(req.Amount)),
 	)
 
-	slog.InfoContext(ctx, "Handling request for user %s", req.UserID)
+	slog.InfoContext(ctx, "Handling debit request", "userID", req.UserID)
 
 	var err error
 	var wallet domain.Wallet
@@ -51,14 +51,14 @@ func (h *UseCaseHandler) Handle(ctx context.Context, req Request) error {
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, "Failed to get wallet")
-			slog.ErrorContext(ctx, "error getting funds for user %s", req.UserID)
+			slog.ErrorContext(ctx, "Error getting funds for user", "userID", req.UserID, "error", err)
 			return domain.NewGetFundsError(string(req.UserID), err) // Error no recuperable, salimos.
 		}
 
 		if err = wallet.Debit(req.Amount); err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, "Insufficient funds")
-			slog.ErrorContext(ctx, "error debiting amount for user", "amount", req.Amount, "userId", req.UserID)
+			slog.ErrorContext(ctx, "Error debiting amount from wallet", "amount", req.Amount, "userID", req.UserID, "error", err)
 			return err
 		}
 
@@ -67,7 +67,7 @@ func (h *UseCaseHandler) Handle(ctx context.Context, req Request) error {
 		updateSpan.End()
 
 		if err == nil {
-			slog.InfoContext(ctx, "Debited amount for user %s", req.UserID)
+			slog.InfoContext(ctx, "Debited amount for user %s", "userID", req.UserID)
 			break
 		}
 
@@ -97,7 +97,7 @@ func (h *UseCaseHandler) Handle(ctx context.Context, req Request) error {
 		return domain.NewPublishMessageError(string(req.UserID), err)
 	}
 
-	slog.InfoContext(ctx, "Finished request for user %s", req.UserID)
+	slog.InfoContext(ctx, "Finished request for user %s", "userID", req.UserID)
 	return nil
 }
 
