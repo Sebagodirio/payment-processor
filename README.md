@@ -32,10 +32,13 @@ Patrón Saga (Coreografiada): Se utiliza para mantener la consistencia de los da
 ## 3. Estructura del Proyecto (Monorepo)
 El proyecto está organizado como un monorepo, donde cada servicio principal reside en su propio directorio.
 
+# Estructura del Proyecto: `wallet-service-lambda`
+
+```bash
 wallet-service-lambda/
 ├── cmd/
 │   └── main.go
-    └── bootstrap/ 
+└── bootstrap/
 
 ├── internal/
 │   └── debit/                        # Lógica del caso de uso "debitar saldo"
@@ -53,6 +56,7 @@ wallet-service-lambda/
 │           │   └── mocks/
 │           └── repository/           # Adaptador de persistencia (ej. DynamoDB)
 └── go.mod
+```
 
 ## Eventos de la Saga de Pago
 
