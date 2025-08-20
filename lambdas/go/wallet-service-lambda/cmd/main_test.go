@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/payment-processor/bootstrap"
+	"github.com/payment-processor/cmd/bootstrap"
 	_events "github.com/payment-processor/internal/debit/domain/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

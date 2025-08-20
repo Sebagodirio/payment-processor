@@ -8,6 +8,9 @@ import (
 	"github.com/payment-processor/internal/debit/application/ports"
 	"github.com/payment-processor/internal/debit/domain"
 	"github.com/payment-processor/internal/debit/infra/repository"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 const maxRetries = 3
@@ -26,24 +29,43 @@ type (
 )
 
 func (h *UseCaseHandler) Handle(ctx context.Context, req Request) error {
+	tracer := otel.Tracer("wallet-service.application")
+	ctx, span := tracer.Start(ctx, "UseCase.HandleDebit")
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("user.id", string(req.UserID)),
+		attribute.Float64("debit.amount", float64(req.Amount)),
+	)
+
 	slog.InfoContext(ctx, "Handling request for user %s", req.UserID)
 
 	var err error
 	var wallet domain.Wallet
 
 	for i := 0; i < maxRetries; i++ {
-		wallet, err = h.walletRepo.Get(ctx, req.UserID)
+		readCtx, readSpan := tracer.Start(ctx, "Repository.Get")
+		wallet, err = h.walletRepo.Get(readCtx, req.UserID)
+		readSpan.End()
+
 		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "Failed to get wallet")
 			slog.ErrorContext(ctx, "error getting funds for user %s", req.UserID)
 			return domain.NewGetFundsError(string(req.UserID), err) // Error no recuperable, salimos.
 		}
 
 		if err = wallet.Debit(req.Amount); err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, "Insufficient funds")
 			slog.ErrorContext(ctx, "error debiting amount for user", "amount", req.Amount, "userId", req.UserID)
 			return err
 		}
 
-		err = h.walletRepo.Update(ctx, wallet)
+		updateCtx, updateSpan := tracer.Start(ctx, "Repository.UpdateWithOutbox")
+		err = h.walletRepo.Update(updateCtx, wallet)
+		updateSpan.End()
+
 		if err == nil {
 			slog.InfoContext(ctx, "Debited amount for user %s", req.UserID)
 			break
@@ -55,26 +77,28 @@ func (h *UseCaseHandler) Handle(ctx context.Context, req Request) error {
 			continue
 		}
 
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "Unrecoverable repository error")
 		slog.ErrorContext(ctx, "unrecoverable repository error on update", "error", err, "userId", req.UserID)
 		return domain.NewDebitFundsError(string(req.UserID), err)
 	}
 
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "Transaction failed after max retries")
 		slog.ErrorContext(ctx, "transaction failed after max retries", "error", err, "userId", req.UserID)
 		return domain.NewMaxRetriesError(string(req.UserID), err)
 	}
 
 	if err = h.eventProcessor.Publish(ctx, toDebitEventRequest(wallet, req.Amount)); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "Publish event failed")
 		slog.ErrorContext(ctx, "error publishing event after successful debit", "error", err)
 		return domain.NewPublishMessageError(string(req.UserID), err)
 	}
 
 	slog.InfoContext(ctx, "Finished request for user %s", req.UserID)
 	return nil
-}
-
-func (h *UseCaseHandler) userCanWithdraw(wantToWithdraw, canWithdraw domain.Amount) bool {
-	return canWithdraw >= wantToWithdraw
 }
 
 func toDebitEventRequest(wallet domain.Wallet, amountToDebit domain.Amount) ports.BalanceDebitedRequest {
