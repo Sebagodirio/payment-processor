@@ -3,7 +3,7 @@ Este repositorio contiene una implementación de prueba de concepto (Proof of Co
 
 El objetivo de este proyecto es demostrar la aplicación de principios de diseño de software robustos como la Arquitectura Hexagonal, el Patrón Saga para transacciones distribuidas y el manejo integral de errores en un sistema asíncrono. 
 
-Esto no es una implementación real, si no una demostración de implementación aplicando buenas prácticas. El código no solo esta incompleto, si no que se puede mejorar en varios aspectos.
+<b> Esto no es una implementación real, si no una demostración de implementación aplicando buenas prácticas. El código no solo esta incompleto, si no que se puede mejorar en varios aspectos.</b>
 
 ## 1. Arquitectura del Sistema
 La arquitectura general se basa en un conjunto de microservicios desacoplados que se comunican a través de un bus de eventos central. Cada servicio es dueño de su propio dominio y base de datos, garantizando una alta cohesión y bajo acoplamiento.
